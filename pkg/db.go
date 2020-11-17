@@ -9,8 +9,10 @@ import (
 	"duffett/model"
 )
 
+// DB 数据库操作对象
 var DB *gorm.DB
 
+// InitDB 初始化数据库
 func InitDB() {
 	var err error
 	// 创建数据库连接池
@@ -22,6 +24,6 @@ func InitDB() {
 	// 自动创建数据表
 	err = DB.AutoMigrate(&model.User{}, &model.Strategy{}, &model.Stock{}, &model.Order{})
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal(err)
 	}
 }

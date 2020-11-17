@@ -8,23 +8,26 @@ import (
 )
 
 type config struct {
-	Addr     string `yaml:"addr"`
-	MysqlUrl string `yaml:"mysqlUrl"`
-	LogPath  string `yaml:"logPath"`
+	Addr      string `yaml:"addr"`
+	MysqlUrl  string `yaml:"mysqlUrl"`
+	LogPath   string `yaml:"logPath"`
+	JwtSecret string `yaml:"jwtSecret"`
 }
 
+// Conf 配置数据
 var Conf *config
 
+// InitConfig 读取配置文件，获取配置数据
 func InitConfig() {
 	// 解析 conf.yaml 文件
 	inFile, err := ioutil.ReadFile("conf.yaml")
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal(err)
 	}
 	Conf = new(config)
 	err = yaml.Unmarshal(inFile, Conf)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal(err)
 	}
 	log.Printf("config: %+v", *Conf)
 }

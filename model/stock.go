@@ -2,6 +2,7 @@ package model
 
 import "gorm.io/gorm"
 
+// Stock 股票类
 type Stock struct {
 	gorm.Model
 	Name      string `gorm:"type:varchar(255);not null;uniqueIndex"`
