@@ -1,9 +1,6 @@
 package main
 
 import (
-	"log"
-	"os/exec"
-
 	"github.com/gin-gonic/gin"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
@@ -33,16 +30,9 @@ func main() {
 		user := v1.Group("/user")
 		{
 			user.POST("/login", app.Login)
+			user.POST("/register", app.Register)
 			user.GET("/test", middleware.JWTAuth(), app.Test)
 		}
-	}
-
-	// 生成 swagger 文档目录
-	cmd := exec.Command("swag", "init")
-	out, err := cmd.CombinedOutput()
-	log.Print(string(out))
-	if err != nil {
-		log.Fatal(err)
 	}
 
 	// 运行

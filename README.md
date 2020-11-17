@@ -21,6 +21,12 @@ jwtSecret: somethingyoulike
 go get -u github.com/swaggo/swag/cmd/swag
 ```
 
+生成 swagger 文档：
+
+```cmd
+swag init
+```
+
 运行：
 
 ```cmd
