@@ -8,10 +8,11 @@ import (
 )
 
 type config struct {
-	Addr      string `yaml:"addr"`
-	MysqlUrl  string `yaml:"mysqlUrl"`
-	LogPath   string `yaml:"logPath"`
-	JwtSecret string `yaml:"jwtSecret"`
+	Addr         string `yaml:"addr"`
+	MysqlUrl     string `yaml:"mysqlUrl"`
+	LogPath      string `yaml:"logPath"`
+	JwtSecret    string `yaml:"jwtSecret"`
+	TushareToken string `yaml:"tushareToken"`
 }
 
 // Conf 配置数据

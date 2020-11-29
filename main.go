@@ -31,7 +31,18 @@ func main() {
 		{
 			user.POST("/login", app.Login)
 			user.POST("/register", app.Register)
-			user.GET("/test", middleware.JWTAuth(), app.Test)
+			user.GET("/testJwt", middleware.JWTAuth(), app.TestJwt)
+		}
+
+		data := v1.Group("/data").Use(middleware.JWTAuth())
+		{
+			data.POST("/tushare", app.Tushare)
+		}
+
+		monitor := v1.Group("/monitor").Use(middleware.JWTAuth())
+		{
+			monitor.POST("/start", app.StartMonitor)
+			monitor.POST("/stop", app.StopMonitor)
 		}
 	}
 

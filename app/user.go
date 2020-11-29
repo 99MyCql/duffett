@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -12,7 +13,7 @@ import (
 	"duffett/pkg"
 )
 
-type loginReqData struct {
+type loginReq struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
@@ -20,20 +21,19 @@ type loginReqData struct {
 // @Summary Login
 // @Tags User
 // @Accept json
-// @Param user body loginReqData true "user"
+// @Param user body loginReq true "user"
 // @Success 200 {string} json "{"code":0,"data":{},"msg":""}"
 // @Failure 200 {string} json "{"code":非0,"data":{},"msg":""}"
 // @Router /api/v1/user/login [post]
 func Login(c *gin.Context) {
 	// 定义请求数据结构
-	var req loginReqData
+	var req loginReq
 	// 解析请求数据
-	err := c.ShouldBind(&req)
-	if err != nil {
+	if err := c.ShouldBind(&req); err != nil {
+		log.Print(err.Error())
 		c.JSON(http.StatusOK, pkg.RspData{
 			Code: pkg.ClientErrCode,
 			Msg:  "should post with username and password",
-			Data: err.Error(),
 		})
 		return
 	}
@@ -51,10 +51,10 @@ func Login(c *gin.Context) {
 		return
 	}
 	if result.Error != nil {
+		log.Print(result.Error.Error())
 		c.JSON(http.StatusOK, pkg.RspData{
 			Code: pkg.ServerErrCode,
 			Msg:  "find data error",
-			Data: result.Error.Error(),
 		})
 		return
 	}
@@ -62,10 +62,10 @@ func Login(c *gin.Context) {
 	// 返回 token
 	token, err := pkg.GenToken(req.Username)
 	if err != nil {
+		log.Print(err.Error())
 		c.JSON(http.StatusOK, pkg.RspData{
 			Code: pkg.ServerErrCode,
 			Msg:  "generate token fail",
-			Data: err.Error(),
 		})
 		return
 	}
@@ -78,13 +78,13 @@ func Login(c *gin.Context) {
 	})
 }
 
-// @Summary Test
+// @Summary TestJwt
 // @Tags User
 // @Accept json
 // @Param Authorization header string false "Bearer <token>"
 // @Success 200 {string} json "{"code":0,"data":{},"msg":""}"
-// @Router /api/v1/user/test [get]
-func Test(c *gin.Context) {
+// @Router /api/v1/user/testJwt [get]
+func TestJwt(c *gin.Context) {
 	username, _ := c.Get("username")
 	c.JSON(http.StatusOK, pkg.RspData{
 		Code: pkg.SucCode,
@@ -96,6 +96,7 @@ func Test(c *gin.Context) {
 type registerReqData struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
+	Email    string `json:"email" binding:"required"`
 }
 
 // @Summary Register
@@ -110,19 +111,27 @@ func Register(c *gin.Context) {
 	// 解析请求数据
 	err := c.ShouldBind(&req)
 	if err != nil {
+		log.Print(err.Error())
 		c.JSON(http.StatusOK, pkg.RspData{
 			Code: pkg.ClientErrCode,
 			Msg:  "should post with username and password",
-			Data: err.Error(),
 		})
 		return
 	}
 	log.Print(req)
 
-	if req.Username == "" || req.Password == "" {
+	if strings.TrimSpace(req.Username) == "" || strings.TrimSpace(req.Password) == "" {
 		c.JSON(http.StatusOK, pkg.RspData{
 			Code: pkg.ClientErrCode,
-			Msg:  "username or password is empty",
+			Msg:  "用户名或密码不能为空",
+		})
+		return
+	}
+
+	if pkg.DB.Where("username = ?", req.Username).Find(&model.User{}).RowsAffected >= 1 {
+		c.JSON(http.StatusOK, pkg.RspData{
+			Code: pkg.ClientErrCode,
+			Msg:  "username is exist",
 		})
 		return
 	}
@@ -130,15 +139,16 @@ func Register(c *gin.Context) {
 	user := model.User{
 		Username: req.Username,
 		Password: pkg.Md5Encode(req.Password),
+		Email:    req.Email,
 		Sex:      2,
 		Role:     "normal",
 	}
 	result := pkg.DB.Create(&user)
 	if result.Error != nil {
+		log.Print(result.Error.Error())
 		c.JSON(http.StatusOK, pkg.RspData{
 			Code: pkg.ServerErrCode,
 			Msg:  "insert data error",
-			Data: result.Error.Error(),
 		})
 		return
 	}
