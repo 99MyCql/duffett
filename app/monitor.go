@@ -3,7 +3,6 @@ package app
 import (
 	"log"
 	"net/http"
-	"strings"
 	"sync"
 	"time"
 
@@ -23,9 +22,9 @@ var (
 )
 
 type startMonitorReq struct {
-	TsCode       string `json:"ts_code" binding:"required"`       // 股票代码
-	StrategyName string `json:"strategy_name" binding:"required"` // 策略名字
-	MonitorFreq  int64  `json:"monitor_freq" binding:"required"`  // 监听频率，以秒为单位
+	TsCode       string `json:"ts_code" binding:"required,excludes= "`       // 股票代码
+	StrategyName string `json:"strategy_name" binding:"required,excludes= "` // 策略名字
+	MonitorFreq  int64  `json:"monitor_freq" binding:"required,number"`      // 监听频率，以秒为单位
 }
 
 // @Summary StartMonitor
@@ -40,31 +39,12 @@ func StartMonitor(c *gin.Context) {
 	var req startMonitorReq
 	if err := c.ShouldBind(&req); err != nil {
 		log.Print(err.Error())
-		c.JSON(http.StatusOK, pkg.RspData{
-			Code: pkg.ClientErrCode,
-			Msg:  "请求参数错误",
-		})
-		return
-	}
-
-	if strings.TrimSpace(req.StrategyName) == "" || strings.TrimSpace(req.TsCode) == "" || req.MonitorFreq == 0 {
-		c.JSON(http.StatusOK, pkg.RspData{
-			Code: pkg.ClientErrCode,
-			Msg:  "请求参数不能为空或者0",
-		})
+		c.JSON(http.StatusOK, pkg.ClientErr(err.Error()))
 		return
 	}
 
 	// 获取 username （经过 jwt 中间件时已从 token 中获取）
-	username, exists := c.Get("username")
-	if exists == false {
-		log.Print("username is not exist")
-		c.JSON(http.StatusOK, pkg.RspData{
-			Code: pkg.ServerErrCode,
-			Msg:  "something error",
-		})
-		return
-	}
+	username, _ := c.Get("username")
 
 	// 启动一个监听器
 	go func() {
@@ -100,10 +80,7 @@ func StartMonitor(c *gin.Context) {
 		}
 	}()
 
-	c.JSON(http.StatusOK, pkg.RspData{
-		Code: pkg.SucCode,
-		Msg:  "启动成功",
-	})
+	c.JSON(http.StatusOK, pkg.Suc("启动监听成功"))
 }
 
 type stopMonitorReq struct {
@@ -122,38 +99,16 @@ func StopMonitor(c *gin.Context) {
 	var req stopMonitorReq
 	if err := c.ShouldBind(&req); err != nil {
 		log.Print(err.Error())
-		c.JSON(http.StatusOK, pkg.RspData{
-			Code: pkg.ClientErrCode,
-			Msg:  "请求参数错误",
-		})
+		c.JSON(http.StatusOK, pkg.ClientErr(err.Error()))
 		return
 	}
 
-	if strings.TrimSpace(req.TsCode) == "" {
-		c.JSON(http.StatusOK, pkg.RspData{
-			Code: pkg.ClientErrCode,
-			Msg:  "请求参数不能为空",
-		})
-		return
-	}
-
-	username, exists := c.Get("username")
-	if exists == false {
-		log.Print("username is not exist")
-		c.JSON(http.StatusOK, pkg.RspData{
-			Code: pkg.ServerErrCode,
-			Msg:  "something error",
-		})
-		return
-	}
+	username, _ := c.Get("username")
 
 	// 结束定时器
 	timeTickers[username.(string)][req.TsCode].mutex.Lock()
 	timeTickers[username.(string)][req.TsCode].stop = true
 	timeTickers[username.(string)][req.TsCode].mutex.Unlock()
 
-	c.JSON(http.StatusOK, pkg.RspData{
-		Code: pkg.SucCode,
-		Msg:  "停止成功",
-	})
+	c.JSON(http.StatusOK, pkg.Suc("停止监听成功"))
 }

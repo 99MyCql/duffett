@@ -4,7 +4,6 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -14,8 +13,8 @@ import (
 )
 
 type loginReq struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Username string `json:"username" binding:"required,excludes= "`
+	Password string `json:"password" binding:"required,excludes= "`
 }
 
 // @Summary Login
@@ -31,10 +30,7 @@ func Login(c *gin.Context) {
 	// 解析请求数据
 	if err := c.ShouldBind(&req); err != nil {
 		log.Print(err.Error())
-		c.JSON(http.StatusOK, pkg.RspData{
-			Code: pkg.ClientErrCode,
-			Msg:  "should post with username and password",
-		})
+		c.JSON(http.StatusOK, pkg.ClientErr(err.Error()))
 		return
 	}
 	log.Print(req)
@@ -44,18 +40,12 @@ func Login(c *gin.Context) {
 	result := pkg.DB.Where("username = ? and password = ?",
 		req.Username, pkg.Md5Encode(req.Password)).First(&user)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		c.JSON(http.StatusOK, pkg.RspData{
-			Code: pkg.ClientErrCode,
-			Msg:  "username or password error",
-		})
+		c.JSON(http.StatusOK, pkg.ClientErr("用户名或密码错误"))
 		return
 	}
 	if result.Error != nil {
 		log.Print(result.Error.Error())
-		c.JSON(http.StatusOK, pkg.RspData{
-			Code: pkg.ServerErrCode,
-			Msg:  "find data error",
-		})
+		c.JSON(http.StatusOK, pkg.ServerErr("服务端发生了一些错误"))
 		return
 	}
 
@@ -63,19 +53,10 @@ func Login(c *gin.Context) {
 	token, err := pkg.GenToken(req.Username)
 	if err != nil {
 		log.Print(err.Error())
-		c.JSON(http.StatusOK, pkg.RspData{
-			Code: pkg.ServerErrCode,
-			Msg:  "generate token fail",
-		})
+		c.JSON(http.StatusOK, pkg.ServerErr("服务端生成 token 出错"))
 		return
 	}
-	c.JSON(http.StatusOK, pkg.RspData{
-		Code: pkg.SucCode,
-		Msg:  "Welcome to duffett!",
-		Data: map[string]interface{}{
-			"token": token,
-		},
-	})
+	c.JSON(http.StatusOK, pkg.SucWithData("Welcome to duffett!", gin.H{"token": token}))
 }
 
 // @Summary TestJwt
@@ -86,17 +67,13 @@ func Login(c *gin.Context) {
 // @Router /api/v1/user/testJwt [get]
 func TestJwt(c *gin.Context) {
 	username, _ := c.Get("username")
-	c.JSON(http.StatusOK, pkg.RspData{
-		Code: pkg.SucCode,
-		Msg:  "test",
-		Data: username,
-	})
+	c.JSON(http.StatusOK, pkg.SucWithData("test", username))
 }
 
 type registerReqData struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-	Email    string `json:"email" binding:"required"`
+	Username string `json:"username" binding:"required,excludes= "`
+	Password string `json:"password" binding:"required,excludes= ,min=6,max=20"`
+	Email    string `json:"email" binding:"required,email"`
 }
 
 // @Summary Register
@@ -112,27 +89,13 @@ func Register(c *gin.Context) {
 	err := c.ShouldBind(&req)
 	if err != nil {
 		log.Print(err.Error())
-		c.JSON(http.StatusOK, pkg.RspData{
-			Code: pkg.ClientErrCode,
-			Msg:  "should post with username and password",
-		})
+		c.JSON(http.StatusOK, pkg.ClientErr(err.Error()))
 		return
 	}
 	log.Print(req)
 
-	if strings.TrimSpace(req.Username) == "" || strings.TrimSpace(req.Password) == "" {
-		c.JSON(http.StatusOK, pkg.RspData{
-			Code: pkg.ClientErrCode,
-			Msg:  "用户名或密码不能为空",
-		})
-		return
-	}
-
 	if pkg.DB.Where("username = ?", req.Username).Find(&model.User{}).RowsAffected >= 1 {
-		c.JSON(http.StatusOK, pkg.RspData{
-			Code: pkg.ClientErrCode,
-			Msg:  "username is exist",
-		})
+		c.JSON(http.StatusOK, pkg.ClientErr("用户名已存在"))
 		return
 	}
 
@@ -146,15 +109,9 @@ func Register(c *gin.Context) {
 	result := pkg.DB.Create(&user)
 	if result.Error != nil {
 		log.Print(result.Error.Error())
-		c.JSON(http.StatusOK, pkg.RspData{
-			Code: pkg.ServerErrCode,
-			Msg:  "insert data error",
-		})
+		c.JSON(http.StatusOK, pkg.ServerErr("服务端发生了一些错误"))
 		return
 	}
 
-	c.JSON(http.StatusOK, pkg.RspData{
-		Code: pkg.SucCode,
-		Msg:  "register",
-	})
+	c.JSON(http.StatusOK, pkg.Suc("注册成功"))
 }

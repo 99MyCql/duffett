@@ -36,10 +36,7 @@ func Tushare(c *gin.Context) {
 	var req tushareReq
 	if err := c.ShouldBind(&req); err != nil {
 		log.Print(err.Error())
-		c.JSON(http.StatusOK, pkg.RspData{
-			Code: pkg.ClientErrCode,
-			Msg:  "参数携带不正确",
-		})
+		c.JSON(http.StatusOK, pkg.ClientErr(err.Error()))
 		return
 	}
 	log.Print(req)
@@ -47,10 +44,7 @@ func Tushare(c *gin.Context) {
 	rsp, err := reqTushareApi(req)
 	if err != nil {
 		log.Print(err.Error())
-		c.JSON(http.StatusOK, pkg.RspData{
-			Code: pkg.ServerErrCode,
-			Msg:  "something error",
-		})
+		c.JSON(http.StatusOK, pkg.ServerErr("服务端请求 tushare 接口时发生了一些错误"))
 		return
 	}
 	c.JSON(http.StatusOK, rsp)
