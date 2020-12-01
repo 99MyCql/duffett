@@ -35,7 +35,7 @@ type tushareReq struct {
 func Tushare(c *gin.Context) {
 	var req tushareReq
 	if err := c.ShouldBind(&req); err != nil {
-		log.Print(err.Error())
+		log.Print(err)
 		c.JSON(http.StatusOK, pkg.ClientErr(err.Error()))
 		return
 	}
@@ -43,7 +43,7 @@ func Tushare(c *gin.Context) {
 
 	rsp, err := reqTushareApi(req)
 	if err != nil {
-		log.Print(err.Error())
+		log.Print(err)
 		c.JSON(http.StatusOK, pkg.ServerErr("服务端请求 tushare 接口时发生了一些错误"))
 		return
 	}

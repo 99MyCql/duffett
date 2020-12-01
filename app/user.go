@@ -29,7 +29,7 @@ func Login(c *gin.Context) {
 	var req loginReq
 	// 解析请求数据
 	if err := c.ShouldBind(&req); err != nil {
-		log.Print(err.Error())
+		log.Print(err)
 		c.JSON(http.StatusOK, pkg.ClientErr(err.Error()))
 		return
 	}
@@ -52,7 +52,7 @@ func Login(c *gin.Context) {
 	// 返回 token
 	token, err := pkg.GenToken(req.Username)
 	if err != nil {
-		log.Print(err.Error())
+		log.Print(err)
 		c.JSON(http.StatusOK, pkg.ServerErr("服务端生成 token 出错"))
 		return
 	}
@@ -88,7 +88,7 @@ func Register(c *gin.Context) {
 	// 解析请求数据
 	err := c.ShouldBind(&req)
 	if err != nil {
-		log.Print(err.Error())
+		log.Print(err)
 		c.JSON(http.StatusOK, pkg.ClientErr(err.Error()))
 		return
 	}
