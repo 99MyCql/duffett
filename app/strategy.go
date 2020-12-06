@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-// execStrategy 执行决策
-func execStrategy(strategyName string, tsCode string) (amount int, err error) {
+// ExecStrategy 执行决策
+func ExecStrategy(strategyName string, tsCode string) (amount int, err error) {
 	switch strategyName {
 	default:
 		amount, err = randStrategy(tsCode)

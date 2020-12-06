@@ -6,6 +6,7 @@ import (
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 
 	"duffett/app"
+	appMonitor "duffett/app/monitor"
 	_ "duffett/docs"
 	"duffett/middleware"
 	"duffett/pkg"
@@ -39,10 +40,9 @@ func main() {
 			data.POST("/tushare", app.Tushare)
 		}
 
-		monitor := v1.Group("/monitor").Use(middleware.JWTAuth())
+		monitor := v1.Group("/monitor")
 		{
-			monitor.POST("/start", app.StartMonitor)
-			monitor.POST("/stop", app.StopMonitor)
+			monitor.GET("/ws", appMonitor.WS)
 		}
 	}
 
