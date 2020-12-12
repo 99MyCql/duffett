@@ -1,14 +1,11 @@
-package app
+package user
 
 import (
-	"errors"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 
-	"duffett/model"
 	"duffett/pkg"
 )
 
@@ -36,16 +33,8 @@ func Login(c *gin.Context) {
 	log.Print(req)
 
 	// 查找数据库判断是否正确
-	user := model.User{}
-	result := pkg.DB.Where("username = ? and password = ?",
-		req.Username, pkg.Md5Encode(req.Password)).First(&user)
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		c.JSON(http.StatusOK, pkg.ClientErr("用户名或密码错误"))
-		return
-	}
-	if result.Error != nil {
-		log.Print(result.Error.Error())
-		c.JSON(http.StatusOK, pkg.ServerErr("服务端发生了一些错误"))
+	if rsp := check(req.Username, req.Password); rsp.Code != pkg.SucCode {
+		c.JSON(http.StatusOK, rsp)
 		return
 	}
 
@@ -94,24 +83,25 @@ func Register(c *gin.Context) {
 	}
 	log.Print(req)
 
-	if pkg.DB.Where("username = ?", req.Username).Find(&model.User{}).RowsAffected >= 1 {
+	// 查询用户名是否存在
+	if user := FindByName(req.Username); user != nil {
 		c.JSON(http.StatusOK, pkg.ClientErr("用户名已存在"))
 		return
 	}
 
-	user := model.User{
+	// 创建用户
+	user := User{
 		Username: req.Username,
 		Password: pkg.Md5Encode(req.Password),
 		Email:    req.Email,
 		Sex:      2,
 		Role:     "normal",
 	}
-	result := pkg.DB.Create(&user)
-	if result.Error != nil {
-		log.Print(result.Error.Error())
-		c.JSON(http.StatusOK, pkg.ServerErr("服务端发生了一些错误"))
+	if rsp := create(&user); rsp.Code != pkg.SucCode {
+		c.JSON(http.StatusOK, rsp)
 		return
 	}
+	log.Print(user)
 
 	c.JSON(http.StatusOK, pkg.Suc("注册成功"))
 }

@@ -5,15 +5,16 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 
-	"duffett/app"
+	appData "duffett/app/data"
 	appMonitor "duffett/app/monitor"
+	appUser "duffett/app/user"
 	_ "duffett/docs"
 	"duffett/middleware"
 	"duffett/pkg"
 )
 
 func init() {
-	pkg.InitConfig()
+	pkg.InitConfig("conf.yaml")
 	pkg.InitLog()
 	pkg.InitDB()
 }
@@ -30,14 +31,14 @@ func main() {
 	{
 		user := v1.Group("/user")
 		{
-			user.POST("/login", app.Login)
-			user.POST("/register", app.Register)
-			user.GET("/testJwt", middleware.JWTAuth(), app.TestJwt)
+			user.POST("/login", appUser.Login)
+			user.POST("/register", appUser.Register)
+			user.GET("/testJwt", middleware.JWTAuth(), appUser.TestJwt)
 		}
 
 		data := v1.Group("/data").Use(middleware.JWTAuth())
 		{
-			data.POST("/tushare", app.Tushare)
+			data.POST("/tushare", appData.Tushare)
 		}
 
 		monitor := v1.Group("/monitor")

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 
 	"duffett/pkg"
 )
@@ -64,6 +65,9 @@ func WS(c *gin.Context) {
 		userTsMonitor[username] = make(map[string]*monitor)
 	}
 
+	// 为当前用户下的每个运行中监听器设置ws值
+	setWS(username, ws)
+
 	for {
 		// 由于WebSocket一旦连接，便可以保持长时间通讯，则该接口函数可以一直运行下去，直到连接断开
 		_, dataByte, err := ws.ReadMessage()
@@ -87,7 +91,10 @@ func WS(c *gin.Context) {
 			}
 			userTsMonitor[username][data.TsCode] = newMonitor(
 				username, data.TsCode, data.StrategyName, data.MonitorFreq, ws)
-			go userTsMonitor[username][data.TsCode].start()
+			if userTsMonitor[username][data.TsCode] == nil {
+				continue
+			}
+			go userTsMonitor[username][data.TsCode].monitoring()
 			// defer func() { userTsMonitor[username][data.TsCode].ws = nil }()
 		} else if data.Op == "stopMonitor" {
 			userTsMonitor[username][data.TsCode].stop()
@@ -95,5 +102,11 @@ func WS(c *gin.Context) {
 		} else {
 			ws.WriteJSON(pkg.ClientErr("op 字段未匹配"))
 		}
+	}
+}
+
+func setWS(username string, ws *websocket.Conn) {
+	for _, v := range userTsMonitor[username] {
+		v.ws = ws
 	}
 }

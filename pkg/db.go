@@ -5,8 +5,6 @@ import (
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-
-	"duffett/model"
 )
 
 // DB 数据库操作对象
@@ -20,10 +18,24 @@ func InitDB() {
 	if err != nil {
 		panic(err)
 	}
+}
 
-	// 自动创建数据表
-	err = DB.AutoMigrate(&model.User{}, &model.Strategy{}, &model.Stock{}, &model.Order{})
-	if err != nil {
-		log.Fatal(err)
+// ComCreate 通用数据库创建
+func ComCreate(model interface{}) RspData {
+	result := DB.Create(model)
+	if result.Error != nil {
+		log.Print(result.Error.Error())
+		return ServerErr("服务端发生了一些错误")
 	}
+	return Suc("")
+}
+
+// ComDelete 通用数据库删除
+func ComDelete(model interface{}) RspData {
+	result := DB.Delete(model)
+	if result.Error != nil {
+		log.Print(result.Error.Error())
+		return ServerErr("服务端发生了一些错误")
+	}
+	return Suc("")
 }

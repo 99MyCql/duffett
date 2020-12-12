@@ -19,9 +19,9 @@ type config struct {
 var Conf *config
 
 // InitConfig 读取配置文件，获取配置数据
-func InitConfig() {
+func InitConfig(filepath string) {
 	// 解析 conf.yaml 文件
-	inFile, err := ioutil.ReadFile("conf.yaml")
+	inFile, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		log.Fatal(err)
 	}

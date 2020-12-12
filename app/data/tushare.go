@@ -1,4 +1,4 @@
-package app
+package data
 
 import (
 	"bytes"
@@ -50,6 +50,7 @@ func Tushare(c *gin.Context) {
 	c.JSON(http.StatusOK, rsp)
 }
 
+// 请求 tushare 接口，自动添加 token
 func reqTushareApi(data tushareReq) (map[string]interface{}, error) {
 	// 请求 tushare 接口时，需携带 token
 	data.Token = pkg.Conf.TushareToken
@@ -71,4 +72,18 @@ func reqTushareApi(data tushareReq) (map[string]interface{}, error) {
 		return nil, err
 	}
 	return res, nil
+}
+
+// GetStockName 通过 tsCode 获取股票名
+func GetStockName(tsCode string) (string, error) {
+	rsp, err := reqTushareApi(tushareReq{
+		ApiName: "stock_basic",
+		Params:  map[string]interface{}{"ts_code": "000001.SZ"},
+		Fields:  "name",
+	})
+	if err != nil {
+		return "", err
+	}
+	log.Print(rsp)
+	return rsp["data"].(map[string]interface{})["items"].([]interface{})[0].([]interface{})[0].(string), nil
 }
