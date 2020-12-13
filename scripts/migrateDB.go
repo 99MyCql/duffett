@@ -3,10 +3,10 @@ package main
 import (
 	"log"
 
-	"duffett/app/order"
-	"duffett/app/stock"
-	"duffett/app/strategy"
-	"duffett/app/user"
+	model4 "duffett/app/order/model"
+	"duffett/app/stock/model"
+	model2 "duffett/app/strategy/model"
+	model3 "duffett/app/user/model"
 	"duffett/pkg"
 )
 
@@ -18,7 +18,7 @@ func init() {
 
 func main() {
 	// 自动创建数据表
-	err := pkg.DB.AutoMigrate(&user.User{}, &strategy.Strategy{}, &stock.Stock{}, &order.Order{})
+	err := pkg.DB.AutoMigrate(&model3.User{}, &model2.Strategy{}, &model.Stock{}, &model4.Order{})
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,9 +1,9 @@
-package strategy
+package model
 
 import (
 	"gorm.io/gorm"
 
-	"duffett/app/stock"
+	"duffett/app/stock/model"
 	"duffett/pkg"
 )
 
@@ -14,7 +14,7 @@ type Strategy struct {
 	Desc    string `gorm:"type:varchar(255)"`
 	Content string `gorm:"type:text"`
 	UserID  uint
-	Stocks  []*stock.Stock `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Stocks  []*model.Stock `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
 
 func FindByName(strategyName string) *Strategy {

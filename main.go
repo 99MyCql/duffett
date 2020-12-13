@@ -7,6 +7,7 @@ import (
 
 	appData "duffett/app/data"
 	appMonitor "duffett/app/monitor"
+	appStock "duffett/app/stock"
 	appUser "duffett/app/user"
 	_ "duffett/docs"
 	"duffett/middleware"
@@ -17,6 +18,7 @@ func init() {
 	pkg.InitConfig("conf.yaml")
 	pkg.InitLog()
 	pkg.InitDB()
+	pkg.InitJwt()
 }
 
 func main() {
@@ -44,6 +46,11 @@ func main() {
 		monitor := v1.Group("/monitor")
 		{
 			monitor.GET("/ws", appMonitor.WS)
+		}
+
+		stock := v1.Group("/stock").Use(middleware.JWTAuth())
+		{
+			stock.GET("/getMonitoringStocks", appStock.GetMonitoringStocks)
 		}
 	}
 

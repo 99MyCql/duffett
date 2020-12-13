@@ -22,5 +22,5 @@ func InitLog() {
 		log.SetOutput(file)
 	}
 	log.SetPrefix("[duffett] ")
-	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+	log.SetFlags(log.Ldate | log.Ltime | log.Llongfile)
 }

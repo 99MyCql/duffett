@@ -8,6 +8,12 @@
 
 ## Quickstart
 
+下载依赖：
+
+```cmd
+go mod download
+```
+
 根目录下创建配置文件 `conf.yaml` ，内容如下：
 
 ```yaml
@@ -23,10 +29,10 @@ jwtSecret: somethingyoulike
 tushareToken: xxxxxx
 ```
 
-安装 `swag` 工具：
+自动生成数据库表：
 
 ```cmd
-go get -u github.com/swaggo/swag/cmd/swag
+go run scripts\migrateDB.go
 ```
 
 生成 swagger 文档：

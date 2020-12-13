@@ -95,10 +95,11 @@ func WS(c *gin.Context) {
 				continue
 			}
 			go userTsMonitor[username][data.TsCode].monitoring()
-			// defer func() { userTsMonitor[username][data.TsCode].ws = nil }()
+			ws.WriteJSON(pkg.Suc("启动监听成功"))
 		} else if data.Op == "stopMonitor" {
 			userTsMonitor[username][data.TsCode].stop()
 			delete(userTsMonitor[username], data.TsCode)
+			ws.WriteJSON(pkg.Suc("停止监听成功"))
 		} else {
 			ws.WriteJSON(pkg.ClientErr("op 字段未匹配"))
 		}

@@ -1,9 +1,9 @@
-package stock
+package model
 
 import (
 	"gorm.io/gorm"
 
-	"duffett/app/order"
+	"duffett/app/order/model"
 	"duffett/pkg"
 )
 
@@ -19,11 +19,12 @@ type Stock struct {
 	CurProfit   float64 `gorm:"type:double"`
 	UserID      uint
 	StrategyID  uint
-	orders      []*order.Order `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	orders      []*model.Order `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
 
 const (
-	MonitoringState = "监听中"
+	MonitoringState    = "监听中"
+	MonitorFinishState = "监听结束"
 )
 
 func Create(stock *Stock) pkg.RspData {
@@ -32,4 +33,13 @@ func Create(stock *Stock) pkg.RspData {
 
 func Delete(stock *Stock) pkg.RspData {
 	return pkg.ComDelete(stock)
+}
+
+func FindMonitoringStocks(userID uint) []*Stock {
+	var stocks []*Stock = make([]*Stock, 0)
+	result := pkg.DB.Where("user_id = ? and state = \"监听中\"", userID).Find(&stocks)
+	if result.RowsAffected < 1 {
+		return stocks
+	}
+	return stocks
 }

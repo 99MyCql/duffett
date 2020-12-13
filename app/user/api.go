@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"duffett/app/user/model"
 	"duffett/pkg"
 )
 
@@ -33,7 +34,7 @@ func Login(c *gin.Context) {
 	log.Print(req)
 
 	// 查找数据库判断是否正确
-	if rsp := check(req.Username, req.Password); rsp.Code != pkg.SucCode {
+	if rsp := model.Check(req.Username, req.Password); rsp.Code != pkg.SucCode {
 		c.JSON(http.StatusOK, rsp)
 		return
 	}
@@ -84,20 +85,20 @@ func Register(c *gin.Context) {
 	log.Print(req)
 
 	// 查询用户名是否存在
-	if user := FindByName(req.Username); user != nil {
+	if user := model.FindByName(req.Username); user != nil {
 		c.JSON(http.StatusOK, pkg.ClientErr("用户名已存在"))
 		return
 	}
 
 	// 创建用户
-	user := User{
+	user := model.User{
 		Username: req.Username,
 		Password: pkg.Md5Encode(req.Password),
 		Email:    req.Email,
 		Sex:      2,
 		Role:     "normal",
 	}
-	if rsp := create(&user); rsp.Code != pkg.SucCode {
+	if rsp := model.Create(&user); rsp.Code != pkg.SucCode {
 		c.JSON(http.StatusOK, rsp)
 		return
 	}
