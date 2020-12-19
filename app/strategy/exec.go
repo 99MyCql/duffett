@@ -7,7 +7,7 @@ func ExecStrategy(strategyName string, tsCode string) (float64, error) {
 		err    error
 	)
 	switch strategyName {
-	default:
+	case "随机策略":
 		amount, err = randStrategy(tsCode)
 	}
 	return float64(amount), err

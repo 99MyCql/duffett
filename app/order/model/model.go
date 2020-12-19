@@ -31,3 +31,7 @@ func Create(order *Order) pkg.RspData {
 func Delete(order *Order) pkg.RspData {
 	return pkg.ComDelete(order)
 }
+
+func Update(order *Order) pkg.RspData {
+	return pkg.ComUpdate(order)
+}

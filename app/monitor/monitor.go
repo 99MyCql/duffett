@@ -8,40 +8,36 @@ import (
 	"github.com/gorilla/websocket"
 
 	"duffett/app/data"
-	model4 "duffett/app/order/model"
-	"duffett/app/stock/model"
+	orderModel "duffett/app/order/model"
+	stockModel "duffett/app/stock/model"
 	"duffett/app/strategy"
-	model2 "duffett/app/strategy/model"
+	strategyModel "duffett/app/strategy/model"
 	"duffett/app/trade"
-	model3 "duffett/app/user/model"
+	userModel "duffett/app/user/model"
 	"duffett/pkg"
 )
 
 // monitor 监听器
 type monitor struct {
 	// 相关数据信息
-	userID       uint
 	username     string
-	tsCode       string
-	stockName    string
-	strategyID   uint
 	strategyName string
+	stock        stockModel.Stock
 	// 监听所需信息
-	monitorFreq int64
-	ticker      *time.Ticker
-	stopped     bool
-	mutex       sync.Mutex
-	ws          *websocket.Conn
+	ticker  *time.Ticker
+	stopped bool
+	mutex   sync.Mutex
+	ws      *websocket.Conn
 }
 
 // newMonitor 创建一个监听器
 func newMonitor(username string, tsCode string, strategyName string, freq int64, ws *websocket.Conn) *monitor {
-	u := model3.FindByName(username)
+	u := userModel.FindByName(username)
 	if u == nil {
 		ws.WriteJSON(pkg.ServerErr("查找用户时出错"))
 		return nil
 	}
-	s := model2.FindByName(strategyName)
+	s := strategyModel.FindByName(strategyName)
 	if s == nil {
 		ws.WriteJSON(pkg.ClientErr("策略名不存在"))
 		return nil
@@ -53,22 +49,27 @@ func newMonitor(username string, tsCode string, strategyName string, freq int64,
 		return nil
 	}
 	return &monitor{
-		userID:       u.ID,
-		username:     u.Username,
-		tsCode:       tsCode,
-		stockName:    stockName,
-		strategyID:   s.ID,
-		strategyName: s.Name,
-		monitorFreq:  freq,
-		ticker:       time.NewTicker(time.Second * time.Duration(freq)),
-		stopped:      false,
-		mutex:        sync.Mutex{},
-		ws:           ws,
+		username:     username,
+		strategyName: strategyName,
+		stock: stockModel.Stock{
+			TsCode:      tsCode,
+			Name:        stockName,
+			State:       "",
+			MonitorFreq: freq,
+			Share:       0,
+			Profit:      0,
+			UserID:      u.ID,
+			StrategyID:  s.ID,
+		},
+		ticker:  time.NewTicker(time.Second * time.Duration(freq)),
+		stopped: false,
+		mutex:   sync.Mutex{},
+		ws:      ws,
 	}
 }
 
-// orderPro 前端所需的 order 数据
-type orderPro struct {
+// orderRsp 前端所需的整合的 order 数据
+type orderRsp struct {
 	Money        float64
 	Price        float64
 	State        string
@@ -81,22 +82,8 @@ type orderPro struct {
 // monitoring 启动监听器
 func (m *monitor) monitoring() {
 	// 在 stock 数据表中记录，监听器结束时删除
-	sto := model.Stock{
-		TsCode:      m.tsCode,
-		Name:        m.stockName,
-		State:       model.MonitoringState,
-		MonitorFreq: m.monitorFreq,
-		Share:       0,
-		SumProfit:   0,
-		CurProfit:   0,
-		UserID:      m.userID,
-		StrategyID:  m.strategyID,
-	}
-	model.Create(&sto)
-	defer func() {
-		sto.State = model.MonitorFinishState
-		model.Delete(&sto)
-	}()
+	m.stock.State = stockModel.MonitoringState
+	stockModel.Create(&m.stock)
 
 	// 启动监听器
 	for {
@@ -109,17 +96,17 @@ func (m *monitor) monitoring() {
 		m.mutex.Unlock()
 
 		// 决策
-		amount, err := strategy.ExecStrategy(m.strategyName, m.tsCode)
+		amount, err := strategy.ExecStrategy(m.strategyName, m.stock.TsCode)
 		if err != nil {
 			log.Print(err)
 			m.ws.WriteJSON(pkg.ServerErr("服务端决策出错"))
 			break
 		}
-		o := orderPro{
+		o := orderRsp{
 			Money:        amount,
 			Price:        0,
-			State:        model4.TradingState,
-			StockName:    m.stockName,
+			State:        orderModel.TradingState,
+			StockName:    m.stock.Name,
 			StrategyName: m.strategyName,
 			CreatedAt:    time.Now().Format("2006-01-02 15:04:05"),
 		}
@@ -127,23 +114,23 @@ func (m *monitor) monitoring() {
 		m.ws.WriteJSON(pkg.SucWithData("", o))
 
 		// 交易
-		if err := trade.ExecTrade(m.tsCode, amount); err != nil {
+		if err := trade.ExecTrade(m.stock.TsCode, amount); err != nil {
 			log.Print(err)
-			o.State = model4.ErrorState
+			o.State = orderModel.ErrorState
 			o.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
 			m.ws.WriteJSON(pkg.SucWithData("", o))
 			continue
 		}
-		o.State = model4.TradedState
+		o.State = orderModel.TradedState
 		o.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
 		log.Print(o)
 		m.ws.WriteJSON(pkg.SucWithData("", o))
-		model4.Create(&model4.Order{
+		orderModel.Create(&orderModel.Order{
 			Money:   o.Money,
 			Price:   o.Price,
 			State:   o.State,
-			UserID:  m.userID,
-			StockId: sto.ID,
+			UserID:  m.stock.UserID,
+			StockId: m.stock.ID,
 		})
 
 		// 等待定时器
@@ -151,9 +138,12 @@ func (m *monitor) monitoring() {
 	}
 }
 
-// stop 停止监听器
-func (m *monitor) stop() {
+// finish 结束监听器
+func (m *monitor) finish() {
 	m.mutex.Lock()
 	m.stopped = true
 	m.mutex.Unlock()
+	// 更新数据库记录
+	m.stock.State = stockModel.MonitorFinishState
+	stockModel.Update(&m.stock)
 }

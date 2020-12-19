@@ -15,8 +15,7 @@ type Stock struct {
 	State       string  `gorm:"type:varchar(100);not null"`
 	MonitorFreq int64   `gorm:"type:bigint;not null"`
 	Share       float64 `gorm:"type:double;not null"`
-	SumProfit   float64 `gorm:"type:double"`
-	CurProfit   float64 `gorm:"type:double"`
+	Profit      float64 `gorm:"type:double"`
 	UserID      uint
 	StrategyID  uint
 	orders      []*model.Order `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
@@ -35,11 +34,36 @@ func Delete(stock *Stock) pkg.RspData {
 	return pkg.ComDelete(stock)
 }
 
-func FindMonitoringStocks(userID uint) []*Stock {
-	var stocks []*Stock = make([]*Stock, 0)
-	result := pkg.DB.Where("user_id = ? and state = \"监听中\"", userID).Find(&stocks)
+func Update(stock *Stock) pkg.RspData {
+	return pkg.ComUpdate(stock)
+}
+
+func FindMonitoringStocks(username string) []*Stock {
+	stocks := make([]*Stock, 0)
+	result := pkg.DB.
+		Where("stocks.state = \"监听中\"").
+		Joins("JOIN users ON users.id = stocks.user_id").
+		Where("users.username = ?", username).
+		Find(&stocks)
 	if result.RowsAffected < 1 {
 		return stocks
 	}
 	return stocks
+}
+
+func FindStocks(username string) []map[string]interface{} {
+	stockPros := make([]map[string]interface{}, 0)
+	result := pkg.DB.
+		Table("stocks").
+		Select("stocks.ts_code, stocks.name, stocks.state, stocks.monitor_freq, stocks.share, "+
+			"stocks.profit, stocks.created_at, stocks.updated_at, "+
+			"strategies.name as strategyName").
+		Joins("JOIN users ON users.id = stocks.user_id").
+		Joins("JOIN strategies ON strategies.id = stocks.strategy_id").
+		Where("users.username = ?", username).
+		Scan(&stockPros)
+	if result.RowsAffected < 1 {
+		return stockPros
+	}
+	return stockPros
 }

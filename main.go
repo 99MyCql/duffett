@@ -51,6 +51,7 @@ func main() {
 		stock := v1.Group("/stock").Use(middleware.JWTAuth())
 		{
 			stock.GET("/getMonitoringStocks", appStock.GetMonitoringStocks)
+			stock.GET("/getStocks", appStock.GetStocks)
 		}
 	}
 

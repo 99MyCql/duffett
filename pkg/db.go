@@ -25,7 +25,7 @@ func ComCreate(model interface{}) RspData {
 	result := DB.Create(model)
 	if result.Error != nil {
 		log.Print(result.Error.Error())
-		return ServerErr("服务端发生了一些错误")
+		return ServerErr("服务端创建数据时发生了一些错误")
 	}
 	return Suc("")
 }
@@ -35,7 +35,17 @@ func ComDelete(model interface{}) RspData {
 	result := DB.Delete(model)
 	if result.Error != nil {
 		log.Print(result.Error.Error())
-		return ServerErr("服务端发生了一些错误")
+		return ServerErr("服务端删除数据时发生了一些错误")
+	}
+	return Suc("")
+}
+
+// ComUpdate 通用数据库更新
+func ComUpdate(model interface{}) RspData {
+	result := DB.Save(model)
+	if result.Error != nil {
+		log.Print(result.Error.Error())
+		return ServerErr("服务端更新数据时发生了一些错误")
 	}
 	return Suc("")
 }
