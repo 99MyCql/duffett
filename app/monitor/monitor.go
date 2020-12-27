@@ -130,7 +130,7 @@ func (m *monitor) monitoring() {
 			Price:   o.Price,
 			State:   o.State,
 			UserID:  m.stock.UserID,
-			StockId: m.stock.ID,
+			StockID: m.stock.ID,
 		})
 
 		// 等待定时器

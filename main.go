@@ -7,6 +7,7 @@ import (
 
 	appData "duffett/app/data"
 	appMonitor "duffett/app/monitor"
+	appOrder "duffett/app/order"
 	appStock "duffett/app/stock"
 	appUser "duffett/app/user"
 	_ "duffett/docs"
@@ -24,9 +25,9 @@ func init() {
 func main() {
 	router := gin.Default()
 
-	// 访问 swagger
-	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
+	// 注册 swagger
+	// url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// 配置路由
 	v1 := router.Group("/api/v1")
@@ -52,6 +53,11 @@ func main() {
 		{
 			stock.GET("/getMonitoringStocks", appStock.GetMonitoringStocks)
 			stock.GET("/getStocks", appStock.GetStocks)
+		}
+
+		order := v1.Group("/order").Use(middleware.JWTAuth())
+		{
+			order.POST("/getOrders", appOrder.GetOrders)
 		}
 	}
 

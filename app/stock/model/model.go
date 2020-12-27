@@ -7,7 +7,7 @@ import (
 	"duffett/pkg"
 )
 
-// Stock 股票类
+// Stock 监听股票类
 type Stock struct {
 	gorm.Model
 	TsCode      string  `gorm:"type:varchar(255);not null"`
@@ -38,6 +38,7 @@ func Update(stock *Stock) pkg.RspData {
 	return pkg.ComUpdate(stock)
 }
 
+// FindMonitoringStocks 与 user 表连接查询监听中的股票
 func FindMonitoringStocks(username string) []*Stock {
 	stocks := make([]*Stock, 0)
 	result := pkg.DB.
@@ -45,24 +46,25 @@ func FindMonitoringStocks(username string) []*Stock {
 		Joins("JOIN users ON users.id = stocks.user_id").
 		Where("users.username = ?", username).
 		Find(&stocks)
-	if result.RowsAffected < 1 {
+	if result.Error != nil || result.RowsAffected < 1 {
 		return stocks
 	}
 	return stocks
 }
 
+// FindStocks 与 user 表连接查询所有记录的股票
 func FindStocks(username string) []map[string]interface{} {
 	stockPros := make([]map[string]interface{}, 0)
 	result := pkg.DB.
 		Table("stocks").
-		Select("stocks.ts_code, stocks.name, stocks.state, stocks.monitor_freq, stocks.share, "+
+		Select("stocks.id, stocks.ts_code, stocks.name, stocks.state, stocks.monitor_freq, stocks.share, "+
 			"stocks.profit, stocks.created_at, stocks.updated_at, "+
 			"strategies.name as strategyName").
 		Joins("JOIN users ON users.id = stocks.user_id").
 		Joins("JOIN strategies ON strategies.id = stocks.strategy_id").
 		Where("users.username = ?", username).
 		Scan(&stockPros)
-	if result.RowsAffected < 1 {
+	if result.Error != nil || result.RowsAffected < 1 {
 		return stockPros
 	}
 	return stockPros

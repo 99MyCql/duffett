@@ -13,7 +13,7 @@ type Order struct {
 	Price   float64 `gorm:"type:double;not null"`
 	State   string  `gorm:"type:varchar(100);not null"`
 	UserID  uint
-	StockId uint
+	StockID uint
 }
 
 const (
@@ -34,4 +34,21 @@ func Delete(order *Order) pkg.RspData {
 
 func Update(order *Order) pkg.RspData {
 	return pkg.ComUpdate(order)
+}
+
+// FindOrders 与 user 表、stock 表连接查询
+func FindOrders(username string, stockID uint) []map[string]interface{} {
+	orders := make([]map[string]interface{}, 0)
+	result := pkg.DB.
+		Table("orders").
+		Select("orders.id, orders.money, orders.price, orders.state, orders.created_at").
+		Joins("JOIN users ON users.id = orders.user_id").
+		Joins("JOIN stocks ON stocks.id = orders.stock_id").
+		Where("users.username = ?", username).
+		Where("stocks.id = ?", stockID).
+		Scan(&orders)
+	if result.Error != nil || result.RowsAffected < 1 {
+		return orders
+	}
+	return orders
 }

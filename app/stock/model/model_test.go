@@ -15,7 +15,7 @@ func setup() {
 
 func Test_findMonitoringStocks(t *testing.T) {
 	setup()
-	stocks := findMonitoringStocks(1)
+	stocks := FindMonitoringStocks("admin")
 	for i := 0; i < len(stocks); i++ {
 		log.Print(stocks[i])
 	}
