@@ -6,8 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"duffett/app/order/model"
-	"duffett/pkg"
+	"github.com/99MyCql/duffett/app/order/model"
+	"github.com/99MyCql/duffett/pkg"
 )
 
 type getOrdersReq struct {

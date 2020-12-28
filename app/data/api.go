@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"duffett/pkg"
+	"github.com/99MyCql/duffett/pkg"
 )
 
 // tushareReq 请求 tushare 接口需要的参数

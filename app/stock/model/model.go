@@ -3,8 +3,8 @@ package model
 import (
 	"gorm.io/gorm"
 
-	"duffett/app/order/model"
-	"duffett/pkg"
+	"github.com/99MyCql/duffett/app/order/model"
+	"github.com/99MyCql/duffett/pkg"
 )
 
 // Stock 监听股票类

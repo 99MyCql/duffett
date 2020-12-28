@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 
-	"duffett/pkg"
+	"github.com/99MyCql/duffett/pkg"
 )
 
 const (

@@ -3,8 +3,8 @@ package model
 import (
 	"gorm.io/gorm"
 
-	"duffett/app/stock/model"
-	"duffett/pkg"
+	"github.com/99MyCql/duffett/app/stock/model"
+	"github.com/99MyCql/duffett/pkg"
 )
 
 // Strategy 策略类

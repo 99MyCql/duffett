@@ -6,10 +6,10 @@ import (
 
 	"gorm.io/gorm"
 
-	model3 "duffett/app/order/model"
-	"duffett/app/stock/model"
-	model2 "duffett/app/strategy/model"
-	"duffett/pkg"
+	model3 "github.com/99MyCql/duffett/app/order/model"
+	"github.com/99MyCql/duffett/app/stock/model"
+	model2 "github.com/99MyCql/duffett/app/strategy/model"
+	"github.com/99MyCql/duffett/pkg"
 )
 
 // User 用户类

@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 
-	"duffett/pkg"
+	"github.com/99MyCql/duffett/pkg"
 )
 
 var (

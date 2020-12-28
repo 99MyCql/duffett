@@ -4,7 +4,7 @@ import (
 	"log"
 	"testing"
 
-	"duffett/pkg"
+	"github.com/99MyCql/duffett/pkg"
 )
 
 func setup() {

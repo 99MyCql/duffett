@@ -6,8 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"duffett/app/user/model"
-	"duffett/pkg"
+	"github.com/99MyCql/duffett/app/user/model"
+	"github.com/99MyCql/duffett/pkg"
 )
 
 type loginReq struct {

@@ -3,7 +3,7 @@ package model
 import (
 	"gorm.io/gorm"
 
-	"duffett/pkg"
+	"github.com/99MyCql/duffett/pkg"
 )
 
 // Order 订单类

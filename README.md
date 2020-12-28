@@ -8,6 +8,10 @@
 
 ## Quickstart
 
+### Prerequisites
+
+语言版本：Go1.14
+
 下载依赖：
 
 ```cmd
@@ -34,6 +38,8 @@ tushareToken: xxxxxx
 ```cmd
 go run scripts\migrateDB.go
 ```
+
+### Run
 
 生成 swagger 文档：
 

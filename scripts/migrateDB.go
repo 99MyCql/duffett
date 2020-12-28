@@ -3,11 +3,11 @@ package main
 import (
 	"log"
 
-	orderModel "duffett/app/order/model"
-	stockModel "duffett/app/stock/model"
-	strategyModel "duffett/app/strategy/model"
-	userModel "duffett/app/user/model"
-	"duffett/pkg"
+	orderModel "github.com/99MyCql/duffett/app/order/model"
+	stockModel "github.com/99MyCql/duffett/app/stock/model"
+	strategyModel "github.com/99MyCql/duffett/app/strategy/model"
+	userModel "github.com/99MyCql/duffett/app/user/model"
+	"github.com/99MyCql/duffett/pkg"
 )
 
 func init() {
