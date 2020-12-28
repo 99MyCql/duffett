@@ -102,9 +102,16 @@ func (m *monitor) monitoring() {
 			m.ws.WriteJSON(pkg.ServerErr("服务端决策出错"))
 			break
 		}
+
+		realTimeData, err := data.GetRealTimeData(m.stock.TsCode)
+		if err != nil {
+			log.Print(err)
+			m.ws.WriteJSON(pkg.ServerErr("获取股票实时数据出错"))
+			break
+		}
 		o := orderRsp{
 			Money:        amount,
-			Price:        0,
+			Price:        realTimeData.CurPrice,
 			State:        orderModel.TradingState,
 			StockName:    m.stock.Name,
 			StrategyName: m.strategyName,
@@ -114,20 +121,22 @@ func (m *monitor) monitoring() {
 		m.ws.WriteJSON(pkg.SucWithData("", o))
 
 		// 交易
-		if err := trade.ExecTrade(m.stock.TsCode, amount); err != nil {
+		tradePrice, err := trade.ExecTrade(m.stock.TsCode, amount)
+		if err != nil {
 			log.Print(err)
 			o.State = orderModel.ErrorState
 			o.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
 			m.ws.WriteJSON(pkg.SucWithData("", o))
 			continue
 		}
+
 		o.State = orderModel.TradedState
 		o.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
 		log.Print(o)
 		m.ws.WriteJSON(pkg.SucWithData("", o))
 		orderModel.Create(&orderModel.Order{
 			Money:   o.Money,
-			Price:   o.Price,
+			Price:   tradePrice,
 			State:   o.State,
 			UserID:  m.stock.UserID,
 			StockID: m.stock.ID,
