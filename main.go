@@ -9,6 +9,7 @@ import (
 	appMonitor "github.com/99MyCql/duffett/app/monitor"
 	appOrder "github.com/99MyCql/duffett/app/order"
 	appStock "github.com/99MyCql/duffett/app/stock"
+	appStrategy "github.com/99MyCql/duffett/app/strategy"
 	appUser "github.com/99MyCql/duffett/app/user"
 	_ "github.com/99MyCql/duffett/docs"
 	"github.com/99MyCql/duffett/middleware"
@@ -17,7 +18,7 @@ import (
 
 func init() {
 	pkg.InitConfig("conf.yaml")
-	pkg.InitLog()
+	pkg.InitLog(pkg.DebugLevel)
 	pkg.InitDB()
 	pkg.InitJwt()
 }
@@ -58,6 +59,13 @@ func main() {
 		order := v1.Group("/order").Use(middleware.JWTAuth())
 		{
 			order.POST("/getOrders", appOrder.GetOrders)
+		}
+
+		strategy := v1.Group("/strategy").Use(middleware.JWTAuth())
+		{
+			strategy.GET("/getStrategies", appStrategy.GetStrategies)
+			strategy.POST("/create", appStrategy.Create)
+			strategy.POST("/update", appStrategy.Update)
 		}
 	}
 

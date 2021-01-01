@@ -1,22 +1,25 @@
 package model
 
 import (
-	"log"
+	"os"
 	"testing"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/99MyCql/duffett/pkg"
 )
 
 func setup() {
-	pkg.InitConfig("../../conf.yaml")
-	pkg.InitLog()
+	os.Chdir("../../")
+	pkg.InitConfig("conf.yaml")
+	pkg.InitLog(pkg.DebugLevel)
 	pkg.InitDB()
 }
 
-func Test_findMonitoringStocks(t *testing.T) {
+func Test_ListMonitoringStocks(t *testing.T) {
 	setup()
-	stocks := FindMonitoringStocks("admin")
+	stocks := ListMonitoringStocks("admin")
 	for i := 0; i < len(stocks); i++ {
-		log.Print(stocks[i])
+		log.Debug(stocks[i])
 	}
 }

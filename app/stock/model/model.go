@@ -18,7 +18,7 @@ type Stock struct {
 	Profit      float64 `gorm:"type:double"`
 	UserID      uint
 	StrategyID  uint
-	orders      []*model.Order `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Orders      []*model.Order `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
 
 const (
@@ -38,24 +38,21 @@ func Update(stock *Stock) pkg.RspData {
 	return pkg.ComUpdate(stock)
 }
 
-// FindMonitoringStocks 与 user 表连接查询监听中的股票
-func FindMonitoringStocks(username string) []*Stock {
+// ListMonitoringStocks 与 user 表连接查询监听中的股票
+func ListMonitoringStocks(username string) []*Stock {
 	stocks := make([]*Stock, 0)
-	result := pkg.DB.
+	pkg.DB.
 		Where("stocks.state = \"监听中\"").
 		Joins("JOIN users ON users.id = stocks.user_id").
 		Where("users.username = ?", username).
 		Find(&stocks)
-	if result.Error != nil || result.RowsAffected < 1 {
-		return stocks
-	}
 	return stocks
 }
 
-// FindStocks 与 user 表连接查询所有记录的股票
-func FindStocks(username string) []map[string]interface{} {
+// ListStocks 与 user 表连接查询所有记录的股票
+func ListStocks(username string) []map[string]interface{} {
 	stockPros := make([]map[string]interface{}, 0)
-	result := pkg.DB.
+	pkg.DB.
 		Table("stocks").
 		Select("stocks.id, stocks.ts_code, stocks.name, stocks.state, stocks.monitor_freq, stocks.share, "+
 			"stocks.profit, stocks.created_at, stocks.updated_at, "+
@@ -64,8 +61,5 @@ func FindStocks(username string) []map[string]interface{} {
 		Joins("JOIN strategies ON strategies.id = stocks.strategy_id").
 		Where("users.username = ?", username).
 		Scan(&stockPros)
-	if result.Error != nil || result.RowsAffected < 1 {
-		return stockPros
-	}
 	return stockPros
 }

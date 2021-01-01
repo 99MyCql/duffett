@@ -2,7 +2,8 @@ package pkg
 
 import (
 	"io/ioutil"
-	"log"
+
+	log "github.com/sirupsen/logrus"
 
 	"gopkg.in/yaml.v2"
 )
@@ -30,5 +31,5 @@ func InitConfig(filepath string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("config: %+v", *Conf)
+	log.Debugf("config: %+v", *Conf)
 }

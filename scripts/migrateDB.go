@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 
 	orderModel "github.com/99MyCql/duffett/app/order/model"
 	stockModel "github.com/99MyCql/duffett/app/stock/model"
@@ -12,7 +12,7 @@ import (
 
 func init() {
 	pkg.InitConfig("conf.yaml")
-	pkg.InitLog()
+	pkg.InitLog(pkg.DebugLevel)
 	pkg.InitDB()
 }
 
@@ -22,5 +22,5 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Print("migrate successfully")
+	log.Debug("migrate successfully")
 }

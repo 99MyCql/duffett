@@ -1,8 +1,9 @@
 package data
 
 import (
-	"log"
 	"net/http"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
 
@@ -20,15 +21,15 @@ import (
 func Tushare(c *gin.Context) {
 	var req TushareReq
 	if err := c.ShouldBind(&req); err != nil {
-		log.Print(err)
+		log.Error(err)
 		c.JSON(http.StatusOK, pkg.ClientErr(err.Error()))
 		return
 	}
-	log.Print(req)
+	log.Debug(req)
 
 	rsp, err := ReqTushareApi(req)
 	if err != nil {
-		log.Print(err)
+		log.Error(err)
 		c.JSON(http.StatusOK, pkg.ServerErr("服务端请求 tushare 接口时发生了一些错误"))
 		return
 	}

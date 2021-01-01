@@ -1,7 +1,7 @@
 package pkg
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -24,7 +24,7 @@ func InitDB() {
 func ComCreate(model interface{}) RspData {
 	result := DB.Create(model)
 	if result.Error != nil {
-		log.Print(result.Error.Error())
+		log.Error(result.Error.Error())
 		return ServerErr("服务端创建数据时发生了一些错误")
 	}
 	return Suc("")
@@ -34,7 +34,7 @@ func ComCreate(model interface{}) RspData {
 func ComDelete(model interface{}) RspData {
 	result := DB.Delete(model)
 	if result.Error != nil {
-		log.Print(result.Error.Error())
+		log.Error(result.Error.Error())
 		return ServerErr("服务端删除数据时发生了一些错误")
 	}
 	return Suc("")
@@ -44,7 +44,7 @@ func ComDelete(model interface{}) RspData {
 func ComUpdate(model interface{}) RspData {
 	result := DB.Save(model)
 	if result.Error != nil {
-		log.Print(result.Error.Error())
+		log.Error(result.Error.Error())
 		return ServerErr("服务端更新数据时发生了一些错误")
 	}
 	return Suc("")

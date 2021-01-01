@@ -1,8 +1,9 @@
 package order
 
 import (
-	"log"
 	"net/http"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
 
@@ -25,12 +26,12 @@ func GetOrders(c *gin.Context) {
 	username, _ := c.Get("username")
 	var req getOrdersReq
 	if err := c.ShouldBind(&req); err != nil {
-		log.Print(err)
+		log.Error(err)
 		c.JSON(http.StatusOK, pkg.ClientErr(err.Error()))
 		return
 	}
-	log.Print(req)
-	orders := model.FindOrders(username.(string), req.StockId)
+	log.Debug(req)
+	orders := model.ListOrders(username.(string), req.StockId)
 	c.JSON(http.StatusOK, pkg.SucWithData("", orders))
 	return
 }

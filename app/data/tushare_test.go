@@ -1,8 +1,10 @@
 package data
 
 import (
-	"log"
 	"testing"
+	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/99MyCql/duffett/pkg"
 )
@@ -11,7 +13,7 @@ func TestGetDailyData(t *testing.T) {
 	pkg.InitConfig("../../conf.yaml")
 	type args struct {
 		tsCode    string
-		tradeDate string
+		tradeDate time.Time
 	}
 	tests := []struct {
 		name    string
@@ -23,7 +25,7 @@ func TestGetDailyData(t *testing.T) {
 			name: "1",
 			args: args{
 				tsCode:    "000001.SZ",
-				tradeDate: "20201228",
+				tradeDate: time.Now(),
 			},
 			want:    nil,
 			wantErr: false,
@@ -36,7 +38,7 @@ func TestGetDailyData(t *testing.T) {
 				t.Errorf("GetDailyData() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			log.Print(got)
+			log.Debug(got)
 		})
 	}
 }

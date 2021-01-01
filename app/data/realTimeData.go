@@ -3,11 +3,12 @@ package data
 import (
 	"errors"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 
 	"golang.org/x/text/encoding/simplifiedchinese"
 )
@@ -31,6 +32,10 @@ type RealTimeData struct {
 
 // GetRealTimeData 获取股票实时数据
 func GetRealTimeData(tsCode string) (*RealTimeData, error) {
+	if len(tsCode) == 0 {
+		return nil, errors.New("tsCode 为空")
+	}
+
 	// 将 tushare 格式的 tsCode(000001.SZ) 替换成 sinaApi(sz000001) 接受的格式
 	var stockCode string
 	i := strings.Index(tsCode, ".")
@@ -39,32 +44,32 @@ func GetRealTimeData(tsCode string) (*RealTimeData, error) {
 	} else if string(tsCode[len(tsCode)-1]) == "H" {
 		stockCode = "sh" + string([]byte(tsCode)[0:i])
 	} else {
-		log.Print("未匹配的 tsCode")
+		log.Error("未匹配的 tsCode")
 		return nil, errors.New("无法处理的 tsCode")
 	}
 
 	// 请求接口获取数据
 	rsp, err := http.Get(sinaApi + stockCode)
 	if err != nil {
-		log.Print(err)
+		log.Error(err)
 		return nil, err
 	}
 	body, err := ioutil.ReadAll(rsp.Body)
 	if err != nil {
-		log.Print(err)
+		log.Error(err)
 		return nil, err
 	}
 
 	// GBK转UTF-8
 	body, _ = simplifiedchinese.GBK.NewDecoder().Bytes(body)
 	strData := string(body)
-	log.Print(strData)
+	log.Debug(strData)
 
 	// 从字符串中提取数据
 	r, _ := regexp.Compile("\".*?\"")
 	strData = strings.Trim(r.FindString(strData), "\"")
 	arrData := strings.Split(strData, ",")
-	log.Print(arrData)
+	log.Debug(arrData)
 
 	todayOpeningPrice, _ := strconv.ParseFloat(arrData[1], 64)
 	ydayClosingPrice, _ := strconv.ParseFloat(arrData[2], 64)

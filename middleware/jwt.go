@@ -1,10 +1,11 @@
 package middleware
 
 import (
-	"log"
 	"net/http"
 	"strings"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
 
@@ -33,7 +34,7 @@ func JWTAuth() func(c *gin.Context) {
 		// 解析 token
 		myClaims, err := pkg.ParseToken(parts[1])
 		if err != nil {
-			log.Print(err)
+			log.Error(err)
 			c.JSON(http.StatusOK, pkg.ClientErr("无效的 token"))
 			c.Abort()
 			return
