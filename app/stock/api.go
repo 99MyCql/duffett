@@ -17,7 +17,7 @@ import (
 // @Router /api/v1/stock/getMonitoringStocks [get]
 func GetMonitoringStocks(c *gin.Context) {
 	username, _ := c.Get("username")
-	stocks := model.FindMonitoringStocks(username.(string))
+	stocks := model.ListMonitoringStocks(username.(string))
 	c.JSON(http.StatusOK, pkg.SucWithData("", stocks))
 	return
 }
@@ -30,7 +30,7 @@ func GetMonitoringStocks(c *gin.Context) {
 // @Router /api/v1/stock/getStocks [get]
 func GetStocks(c *gin.Context) {
 	username, _ := c.Get("username")
-	stocks := model.FindStocks(username.(string))
+	stocks := model.ListStocks(username.(string))
 	c.JSON(http.StatusOK, pkg.SucWithData("", stocks))
 	return
 }

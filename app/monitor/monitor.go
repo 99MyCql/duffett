@@ -1,9 +1,11 @@
 package monitor
 
 import (
-	"log"
+	"os"
 	"sync"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gorilla/websocket"
 
@@ -22,6 +24,7 @@ type monitor struct {
 	// 相关数据信息
 	username     string
 	strategyName string
+	strategyFile string
 	stock        stockModel.Stock
 	// 监听所需信息
 	ticker  *time.Ticker
@@ -44,7 +47,7 @@ func newMonitor(username string, tsCode string, strategyName string, freq int64,
 	}
 	stockName, err := data.GetStockName(tsCode)
 	if err != nil {
-		log.Print(err)
+		log.Error(err)
 		ws.WriteJSON(pkg.ClientErr("tsCode 错误"))
 		return nil
 	}
@@ -91,21 +94,33 @@ func (m *monitor) monitoring() {
 		m.mutex.Lock()
 		if m.stopped == true {
 			m.mutex.Unlock()
+			os.Remove(m.strategyFile) // 删除策略代码文件
 			break
 		}
 		m.mutex.Unlock()
 
 		// 决策
-		amount, err := strategy.ExecStrategy(m.strategyName, m.stock.TsCode)
-		if err != nil {
-			log.Print(err)
+		strategyRsp := strategy.ExecStrategy(&m.strategyFile, m.strategyName, m.stock.TsCode)
+		if strategyRsp.Code == pkg.ServerErrCode {
+			log.Error(strategyRsp)
 			m.ws.WriteJSON(pkg.ServerErr("服务端决策出错"))
 			break
+		} else if strategyRsp.Code == pkg.ClientErrCode {
+			log.Error(strategyRsp)
+			m.ws.WriteJSON(pkg.ClientErr(strategyRsp.Msg))
+			break
+		}
+		amount := strategyRsp.Data.(float64)
+		if amount == 0 {
+			// 等待定时器
+			<-m.ticker.C
+			continue
 		}
 
+		// 返回正在报单中的订单数据
 		realTimeData, err := data.GetRealTimeData(m.stock.TsCode)
 		if err != nil {
-			log.Print(err)
+			log.Error(err)
 			m.ws.WriteJSON(pkg.ServerErr("获取股票实时数据出错"))
 			break
 		}
@@ -117,22 +132,25 @@ func (m *monitor) monitoring() {
 			StrategyName: m.strategyName,
 			CreatedAt:    time.Now().Format("2006-01-02 15:04:05"),
 		}
-		log.Print(o)
+		log.Debug(o)
 		m.ws.WriteJSON(pkg.SucWithData("", o))
 
 		// 交易
 		tradePrice, err := trade.ExecTrade(m.stock.TsCode, amount)
 		if err != nil {
-			log.Print(err)
+			log.Error(err)
 			o.State = orderModel.ErrorState
 			o.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
 			m.ws.WriteJSON(pkg.SucWithData("", o))
+
+			// 等待定时器
+			<-m.ticker.C
 			continue
 		}
 
 		o.State = orderModel.TradedState
 		o.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
-		log.Print(o)
+		log.Debug(o)
 		m.ws.WriteJSON(pkg.SucWithData("", o))
 		orderModel.Create(&orderModel.Order{
 			Money:   o.Money,
@@ -149,9 +167,11 @@ func (m *monitor) monitoring() {
 
 // finish 结束监听器
 func (m *monitor) finish() {
+	// 设置暂停
 	m.mutex.Lock()
 	m.stopped = true
 	m.mutex.Unlock()
+
 	// 更新数据库记录
 	m.stock.State = stockModel.MonitorFinishState
 	stockModel.Update(&m.stock)

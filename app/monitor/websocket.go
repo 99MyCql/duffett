@@ -2,9 +2,10 @@ package monitor
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -31,7 +32,7 @@ func WS(c *gin.Context) {
 	// 切换为 websocket 连接
 	ws, err := pkg.WsUpgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		log.Print(err)
+		log.Error(err)
 		c.JSON(http.StatusOK, pkg.ServerErr("升级websocket失败"))
 		return
 	}
@@ -40,20 +41,20 @@ func WS(c *gin.Context) {
 	// 先获取 token
 	_, tokenByte, err := ws.ReadMessage()
 	if err != nil {
-		log.Print(err)
+		log.Error(err)
 		ws.WriteJSON(pkg.ServerErr("read message from websocket fail"))
 		return
 	}
 	// 解析 token
 	myClaims, err := pkg.ParseToken(string(tokenByte))
 	if err != nil {
-		log.Print(err)
+		log.Error(err)
 		ws.WriteJSON(pkg.ServerErr("解析 token 失败"))
 		return
 	}
 	// 判断 token 是否过期
 	if myClaims.ExpiresAt <= time.Now().Unix() {
-		log.Print(err)
+		log.Error(err)
 		ws.WriteJSON(pkg.ServerErr("token 已过期，请重新登录"))
 		return
 	}
@@ -72,13 +73,13 @@ func WS(c *gin.Context) {
 		// 由于WebSocket一旦连接，便可以保持长时间通讯，则该接口函数可以一直运行下去，直到连接断开
 		_, dataByte, err := ws.ReadMessage()
 		if err != nil {
-			log.Print(err)
+			log.Error(err)
 			ws.WriteJSON(pkg.ServerErr("read message from websocket fail"))
 			break
 		}
 		var data monitorReqData
 		if err := json.Unmarshal(dataByte, &data); err != nil {
-			log.Print(err)
+			log.Error(err)
 			ws.WriteJSON(pkg.ServerErr("json解析失败"))
 			continue
 		}

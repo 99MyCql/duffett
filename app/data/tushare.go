@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
-	"log"
 	"net/http"
+	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/99MyCql/duffett/pkg"
 )
@@ -29,30 +31,30 @@ func ReqTushareApi(data TushareReq) (map[string]interface{}, error) {
 	data.Token = pkg.Conf.TushareToken
 	dataByte, err := json.Marshal(&data)
 	if err != nil {
-		log.Print(err)
+		log.Error(err)
 		return nil, err
 	}
 	rsp, err := http.Post(tushareApi, "application/json", bytes.NewReader(dataByte))
 	if err != nil {
-		log.Print(err)
+		log.Error(err)
 		return nil, err
 	}
 
 	body, err := ioutil.ReadAll(rsp.Body)
 	if err != nil {
-		log.Print(err)
+		log.Error(err)
 		return nil, err
 	}
 	res := make(map[string]interface{})
 	if err := json.Unmarshal(body, &res); err != nil {
-		log.Print(err)
+		log.Error(err)
 		return nil, err
 	}
 
 	code := res["code"].(float64)
 	msg := res["msg"].(string)
 	if code != 0 {
-		log.Print(errors.New(msg))
+		log.Error(errors.New(msg))
 		return nil, errors.New(msg)
 	}
 
@@ -67,14 +69,14 @@ func GetStockName(tsCode string) (string, error) {
 		Fields:  "name",
 	})
 	if err != nil {
-		log.Print(err)
+		log.Error(err)
 		return "", err
 	}
-	log.Print(rsp)
+	log.Debug(rsp)
 
 	item := rsp["data"].(map[string]interface{})["items"].([]interface{})[0].([]interface{})
 	if len(item) == 0 {
-		log.Print("item 长度为0")
+		log.Error("item 长度为0")
 		return "", errors.New("不存在的 ts_code")
 	}
 	return item[0].(string), nil
@@ -95,22 +97,22 @@ type DailyData struct {
 }
 
 // GetDailyData 获取日线数据
-func GetDailyData(tsCode string, tradeDate string) (*DailyData, error) {
+func GetDailyData(tsCode string, tradeDate time.Time) (*DailyData, error) {
 	rsp, err := ReqTushareApi(TushareReq{
 		ApiName: "daily",
 		Params: map[string]interface{}{
 			"ts_code":    tsCode,
-			"trade_date": tradeDate,
+			"trade_date": tradeDate.Format("20060102"),
 		},
 	})
 	if err != nil {
-		log.Print(err)
+		log.Error(err)
 		return nil, err
 	}
 
 	items := rsp["data"].(map[string]interface{})["items"].([]interface{})
 	if len(items) == 0 {
-		log.Print("items 长度为0")
+		log.Error("items 长度为0")
 		return nil, errors.New("未获取到数据")
 	}
 	item := items[0].([]interface{})

@@ -2,9 +2,10 @@ package trade
 
 import (
 	"errors"
-	"log"
 	"math/rand"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/99MyCql/duffett/app/data"
 )
@@ -18,7 +19,7 @@ func ExecTrade(tsCode string, amount float64) (float64, error) {
 	}
 	realTimeData, err := data.GetRealTimeData(tsCode)
 	if err != nil {
-		log.Print(err)
+		log.Error(err)
 		return 0, err
 	}
 	return realTimeData.CurPrice, nil

@@ -1,8 +1,9 @@
 package user
 
 import (
-	"log"
 	"net/http"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
 
@@ -27,11 +28,11 @@ func Login(c *gin.Context) {
 	var req loginReq
 	// 解析请求数据
 	if err := c.ShouldBind(&req); err != nil {
-		log.Print(err)
+		log.Error(err)
 		c.JSON(http.StatusOK, pkg.ClientErr(err.Error()))
 		return
 	}
-	log.Print(req)
+	log.Debug(req)
 
 	// 查找数据库判断是否正确
 	if rsp := model.Check(req.Username, req.Password); rsp.Code != pkg.SucCode {
@@ -42,7 +43,7 @@ func Login(c *gin.Context) {
 	// 返回 token
 	token, err := pkg.GenToken(req.Username)
 	if err != nil {
-		log.Print(err)
+		log.Error(err)
 		c.JSON(http.StatusOK, pkg.ServerErr("服务端生成 token 出错"))
 		return
 	}
@@ -78,11 +79,11 @@ func Register(c *gin.Context) {
 	// 解析请求数据
 	err := c.ShouldBind(&req)
 	if err != nil {
-		log.Print(err)
+		log.Error(err)
 		c.JSON(http.StatusOK, pkg.ClientErr(err.Error()))
 		return
 	}
-	log.Print(req)
+	log.Debug(req)
 
 	// 查询用户名是否存在
 	if user := model.FindByName(req.Username); user != nil {
@@ -102,7 +103,7 @@ func Register(c *gin.Context) {
 		c.JSON(http.StatusOK, rsp)
 		return
 	}
-	log.Print(user)
+	log.Debug(user)
 
 	c.JSON(http.StatusOK, pkg.Suc("注册成功"))
 }
