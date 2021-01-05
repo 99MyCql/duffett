@@ -42,7 +42,8 @@ func Check(username string, password string) pkg.RspData {
 func FindByName(username string) *User {
 	var user User
 	result := pkg.DB.Where("username = ?", username).Find(&user)
-	if result.RowsAffected < 1 {
+	if result.Error != nil || result.RowsAffected < 1 {
+		log.Error(result.Error)
 		return nil
 	}
 	return &user

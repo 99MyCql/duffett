@@ -113,7 +113,7 @@ func GetDailyData(tsCode string, tradeDate time.Time) (*DailyData, error) {
 	items := rsp["data"].(map[string]interface{})["items"].([]interface{})
 	if len(items) == 0 {
 		log.Error("items 长度为0")
-		return nil, errors.New("未获取到数据")
+		return nil, errors.New("GetDailyData 未获取到数据")
 	}
 	item := items[0].([]interface{})
 

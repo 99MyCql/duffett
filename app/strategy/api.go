@@ -2,6 +2,7 @@ package strategy
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -62,12 +63,22 @@ func Create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, strategyModel.Create(&strategyModel.Strategy{
+	s := strategyModel.Strategy{
 		Name:    u.Username + "_" + req.Name,
 		Desc:    req.Desc,
 		Content: req.Content,
 		UserID:  u.ID,
-	}))
+	}
+	rsp := strategyModel.Create(&s)
+	if rsp.Code == pkg.SucCode {
+		rsp.Msg = "创建成功！"
+		rsp.Data = s
+		c.JSON(http.StatusOK, rsp)
+	} else {
+		rsp.Msg = "创建失败：" + rsp.Msg
+		c.JSON(http.StatusOK, rsp)
+	}
+
 }
 
 type updateReq struct {
@@ -100,5 +111,67 @@ func Update(c *gin.Context) {
 
 	s.Desc = req.Desc
 	s.Content = req.Content
-	c.JSON(http.StatusOK, strategyModel.Update(s))
+	rsp := strategyModel.Update(s)
+	if rsp.Code == pkg.SucCode {
+		rsp.Msg = "更新成功！"
+		c.JSON(http.StatusOK, rsp)
+	} else {
+		rsp.Msg = "更新失败：" + rsp.Msg
+		c.JSON(http.StatusOK, rsp)
+	}
+}
+
+type deleteReq struct {
+	StrategyId uint `json:"strategyId" binding:"required"`
+}
+
+// @Summary Delete
+// @Tags Strategy
+// @Accept json
+// @Param Authorization header string false "Bearer <token>"
+// @Param strategyId body deleteReq true "deleteReq"
+// @Success 200 {string} json "{"code":0,"data":{},"msg":""}"
+// @Router /api/v1/strategy/delete [post]
+func Delete(c *gin.Context) {
+	var req deleteReq
+	if err := c.ShouldBind(&req); err != nil {
+		log.Error(err)
+		c.JSON(http.StatusOK, pkg.ClientErr(err.Error()))
+		return
+	}
+	log.Debug(req)
+	rsp := model.UnscopedDeleteById(req.StrategyId)
+	if rsp.Code == pkg.SucCode {
+		rsp.Msg = "删除成功！"
+		c.JSON(http.StatusOK, rsp)
+	} else {
+		rsp.Msg = "删除失败：" + rsp.Msg
+		c.JSON(http.StatusOK, rsp)
+	}
+}
+
+type testExecReq struct {
+	Name string `json:"name" binding:"required"`
+}
+
+// @Summary TestExec
+// @Tags Strategy
+// @Accept json
+// @Param Authorization header string false "Bearer <token>"
+// @Param testExecReq body testExecReq true "testExecReq"
+// @Success 200 {string} json "{"code":0,"data":{},"msg":""}"
+// @Router /api/v1/strategy/testExec [post]
+func TestExec(c *gin.Context) {
+	var req testExecReq
+	if err := c.ShouldBind(&req); err != nil {
+		log.Error(err)
+		c.JSON(http.StatusOK, pkg.ClientErr(err.Error()))
+		return
+	}
+	log.Debug(req)
+
+	filepath := ""
+	tsCode := "000001.SZ"
+	c.JSON(http.StatusOK, ExecStrategy(&filepath, req.Name, tsCode))
+	os.Remove(filepath)
 }

@@ -66,6 +66,8 @@ func main() {
 			strategy.GET("/getStrategies", appStrategy.GetStrategies)
 			strategy.POST("/create", appStrategy.Create)
 			strategy.POST("/update", appStrategy.Update)
+			strategy.POST("/delete", appStrategy.Delete)
+			strategy.POST("/testExec", appStrategy.TestExec)
 		}
 	}
 
