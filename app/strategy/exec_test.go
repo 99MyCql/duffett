@@ -4,6 +4,8 @@ import (
 	"os"
 	"testing"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/99MyCql/duffett/pkg"
 )
 
@@ -19,7 +21,5 @@ func Test_ExecStrategy(t *testing.T) {
 	filepath := ""
 	strategyRsp := ExecStrategy(&filepath, "admin_简单的买卖策略2", "000001.SZ")
 	t.Log(strategyRsp)
-	if strategyRsp.Code == 0 {
-		os.Remove(strategyRsp.Data.(map[string]interface{})["filepath"].(string))
-	}
+	log.Debug(os.Remove(filepath))
 }

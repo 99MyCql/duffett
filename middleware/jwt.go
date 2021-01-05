@@ -35,7 +35,7 @@ func JWTAuth() func(c *gin.Context) {
 		myClaims, err := pkg.ParseToken(parts[1])
 		if err != nil {
 			log.Error(err)
-			c.JSON(http.StatusOK, pkg.ClientErr("无效的 token"))
+			c.JSON(http.StatusOK, pkg.ClientErr("无效的 token，请重新登录"))
 			c.Abort()
 			return
 		}

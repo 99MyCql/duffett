@@ -19,6 +19,7 @@ const (
 
 import (
 	"fmt"
+	"math/rand"
 	"time"
 
 	"github.com/99MyCql/duffett/app/data"
@@ -27,7 +28,7 @@ import (
 
 func init() {
 	pkg.InitConfig("conf.yaml")
-	pkg.InitLog(pkg.ErrorLevel)
+	pkg.InitLog(pkg.FatalLevel)
 }
 `
 )
@@ -51,15 +52,17 @@ func ExecStrategy(filepath *string, strategyName string, tsCode string) pkg.RspD
 			log.Error(err)
 			return pkg.ServerErr("")
 		}
+		defer f.Close()
 		_, err = f.WriteString(codeHeader + s.Content)
 		if err != nil {
 			log.Error(err)
 			return pkg.ServerErr("")
 		}
+
 	}
 
 	// 设置执行时间
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	// 格式化导入包
@@ -75,13 +78,13 @@ func ExecStrategy(filepath *string, strategyName string, tsCode string) pkg.RspD
 	log.Debug(string(out))
 	if err != nil {
 		log.Error(err)
-		return pkg.ClientErr("程序运行出错：" + string(out))
+		return pkg.ClientErr(string(out))
 	}
 
 	amount, err := strconv.ParseFloat(string(out), 64)
 	if err != nil {
 		log.Error(err)
-		return pkg.ClientErr("程序输出有误：" + string(out))
+		return pkg.ClientErr(string(out))
 	}
 
 	return pkg.SucWithData("", amount)

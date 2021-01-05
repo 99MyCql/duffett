@@ -26,6 +26,7 @@ const (
 	InfoLevel  = "Info"
 	WarnLevel  = "Warn"
 	ErrorLevel = "Error"
+	FatalLevel = "Fatal"
 )
 
 // InitLog 初始化日志配置
@@ -53,6 +54,8 @@ func InitLog(level string) {
 		log.SetLevel(log.WarnLevel)
 	case ErrorLevel:
 		log.SetLevel(log.ErrorLevel)
+	case FatalLevel:
+		log.SetLevel(log.FatalLevel)
 	default:
 		panic("未匹配的日志级别")
 	}
