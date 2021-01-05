@@ -12,13 +12,26 @@
 
 语言版本：Go1.14
 
-下载依赖：
+安装 goimports 工具：
 
-```cmd
-go mod download
+```
+go get -u golang.org/x/tools/cmd/goimports
 ```
 
-根目录下创建配置文件 `conf.yaml` ，内容如下：
+安装 swag 生成工具：
+
+```
+go get -u github.com/swaggo/swag/cmd/swag
+```
+
+生成 swagger 文档：
+
+```cmd
+cd duffett
+swag init
+```
+
+在根目录下创建配置文件 `conf.yaml` ，内容如下：
 
 ```yaml
 # 运行时的 IP 地址和端口号
@@ -36,26 +49,23 @@ tushareToken: xxxxxx
 自动生成数据库表：
 
 ```cmd
+cd duffett
 go run scripts\migrateDB.go
 ```
 
 ### Run
 
-生成 swagger 文档：
-
-```cmd
-swag init
-```
-
 运行：
 
 ```cmd
+cd duffett
 go run main.go
 ```
 
 or
 
 ```cmd
+cd duffett
 go build
 .\duffett
 ```
