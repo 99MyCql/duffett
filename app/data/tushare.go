@@ -10,7 +10,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/99MyCql/duffett/pkg"
+	"duffett/pkg"
 )
 
 const (

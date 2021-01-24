@@ -5,15 +5,15 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 
-	appData "github.com/99MyCql/duffett/app/data"
-	appMonitor "github.com/99MyCql/duffett/app/monitor"
-	appOrder "github.com/99MyCql/duffett/app/order"
-	appStock "github.com/99MyCql/duffett/app/stock"
-	appStrategy "github.com/99MyCql/duffett/app/strategy"
-	appUser "github.com/99MyCql/duffett/app/user"
-	_ "github.com/99MyCql/duffett/docs"
-	"github.com/99MyCql/duffett/middleware"
-	"github.com/99MyCql/duffett/pkg"
+	appData "duffett/app/data"
+	appMonitor "duffett/app/monitor"
+	appOrder "duffett/app/order"
+	appStock "duffett/app/stock"
+	appStrategy "duffett/app/strategy"
+	appUser "duffett/app/user"
+	_ "duffett/docs"
+	"duffett/middleware"
+	"duffett/pkg"
 )
 
 func init() {

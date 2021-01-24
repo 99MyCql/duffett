@@ -15,4 +15,5 @@
 conf.yaml
 *.log
 docs/
-temp/
+temp/*
+!.gitkeep

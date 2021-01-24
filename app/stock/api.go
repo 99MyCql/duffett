@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/99MyCql/duffett/app/stock/model"
-	"github.com/99MyCql/duffett/pkg"
+	"duffett/app/stock/model"
+	"duffett/pkg"
 )
 
 // @Summary GetMonitoringStocks

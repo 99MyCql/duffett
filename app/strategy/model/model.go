@@ -4,8 +4,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
-	"github.com/99MyCql/duffett/app/stock/model"
-	"github.com/99MyCql/duffett/pkg"
+	"duffett/app/stock/model"
+	"duffett/pkg"
 )
 
 // Strategy 策略类

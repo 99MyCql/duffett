@@ -7,7 +7,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/99MyCql/duffett/app/data"
+	"duffett/app/data"
 )
 
 // ExecTrade 模拟交易过程

@@ -7,10 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/99MyCql/duffett/app/strategy/model"
-	strategyModel "github.com/99MyCql/duffett/app/strategy/model"
-	userModel "github.com/99MyCql/duffett/app/user/model"
-	"github.com/99MyCql/duffett/pkg"
+	"duffett/app/strategy/model"
+	strategyModel "duffett/app/strategy/model"
+	userModel "duffett/app/user/model"
+	"duffett/pkg"
 )
 
 // @Summary GetStrategies

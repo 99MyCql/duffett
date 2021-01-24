@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 
-	"github.com/99MyCql/duffett/pkg"
+	"duffett/pkg"
 )
 
 var (

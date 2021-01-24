@@ -9,14 +9,14 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/99MyCql/duffett/app/data"
-	orderModel "github.com/99MyCql/duffett/app/order/model"
-	stockModel "github.com/99MyCql/duffett/app/stock/model"
-	"github.com/99MyCql/duffett/app/strategy"
-	strategyModel "github.com/99MyCql/duffett/app/strategy/model"
-	"github.com/99MyCql/duffett/app/trade"
-	userModel "github.com/99MyCql/duffett/app/user/model"
-	"github.com/99MyCql/duffett/pkg"
+	"duffett/app/data"
+	orderModel "duffett/app/order/model"
+	stockModel "duffett/app/stock/model"
+	"duffett/app/strategy"
+	strategyModel "duffett/app/strategy/model"
+	"duffett/app/trade"
+	userModel "duffett/app/user/model"
+	"duffett/pkg"
 )
 
 // monitor 监听器
