@@ -9,7 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/99MyCql/duffett/pkg"
+	"duffett/pkg"
 )
 
 // JWTAuth JWT 验证中间件，返回函数

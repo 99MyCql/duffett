@@ -7,10 +7,10 @@ import (
 
 	"gorm.io/gorm"
 
-	OrderModel "github.com/99MyCql/duffett/app/order/model"
-	stockModel "github.com/99MyCql/duffett/app/stock/model"
-	strategyModel "github.com/99MyCql/duffett/app/strategy/model"
-	"github.com/99MyCql/duffett/pkg"
+	OrderModel "duffett/app/order/model"
+	stockModel "duffett/app/stock/model"
+	strategyModel "duffett/app/strategy/model"
+	"duffett/pkg"
 )
 
 // User 用户类

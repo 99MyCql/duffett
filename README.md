@@ -2,7 +2,7 @@
 
 ## Introduction
 
-高频交易系统后端。
+综合训练课设，高频交易分析系统后端。
 
 前端见：[duffett_frontend](https://github.com/99MyCql/duffett_frontend)
 
@@ -12,7 +12,7 @@
 
 语言版本：Go1.14
 
-安装 goimports 工具：
+安装 goimports 工具（执行用户上传的代码时所用）：
 
 ```
 go get -u golang.org/x/tools/cmd/goimports
@@ -69,3 +69,5 @@ cd duffett
 go build
 .\duffett
 ```
+
+注：需在代码目录下运行程序，因为执行用户上传的代码时，需调用本项目代码。

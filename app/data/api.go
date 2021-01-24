@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/99MyCql/duffett/pkg"
+	"duffett/pkg"
 )
 
 // @Summary Tushare

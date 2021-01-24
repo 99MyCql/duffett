@@ -1,4 +1,4 @@
-module github.com/99MyCql/duffett
+module duffett
 
 go 1.14
 

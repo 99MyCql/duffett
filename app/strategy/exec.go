@@ -10,8 +10,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/99MyCql/duffett/app/strategy/model"
-	"github.com/99MyCql/duffett/pkg"
+	"duffett/app/strategy/model"
+	"duffett/pkg"
 )
 
 const (
@@ -22,8 +22,8 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/99MyCql/duffett/app/data"
-	"github.com/99MyCql/duffett/pkg"
+	"duffett/app/data"
+	"duffett/pkg"
 )
 
 func init() {
